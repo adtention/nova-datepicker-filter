@@ -1,0 +1,115 @@
+/* Nova Filter CSS */
+
+@import '@vuepic/vue-datepicker/dist/main.css';
+
+.nova-datepicker-field {
+	--dp-font-size: 14px;
+	--dp-font-family: ui-sans-serif, system-ui, sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji');
+	--dp-text-color: rgba(var(--colors-gray-600));
+	--dp-background-color: rgba(var(--colors-white));
+	--dp-primary-color: rgba(var(--colors-primary-500));
+	--dp-primary-text-color: rgba(var(--colors-white));
+	--dp-secondary-color: rgba(var(--colors-gray-400));
+	--dp-border-color: rgba(var(--colors-gray-200));
+	--dp-border-color-hover: rgba(var(--colors-gray-300));
+	--dp-border-color-focus: rgba(var(--colors-primary-500));
+	--dp-menu-border-color: rgba(var(--colors-gray-200));
+	--dp-hover-color: rgba(var(--colors-gray-100));
+	--dp-hover-text-color: rgba(var(--colors-gray-700));
+	--dp-icon-color: rgba(var(--colors-gray-400));
+	--dp-tooltip-color: rgba(var(--colors-white));
+	--dp-disabled-color: rgba(var(--colors-gray-100));
+	--dp-disabled-color-text: rgba(var(--colors-gray-400));
+	--dp-highlight-color: rgba(var(--colors-primary-500), 0.1);
+	--dp-range-between-dates-background-color: rgba(var(--colors-gray-100));
+	--dp-range-between-dates-text-color: rgba(var(--colors-gray-700));
+	--dp-range-between-border-color: rgba(var(--colors-gray-200));
+	--dp-input-padding: 0 34px 0 35px;
+	--dp-border-radius: 4px;
+}
+
+.dark .nova-datepicker-field {
+	--dp-text-color: rgba(var(--colors-gray-400));
+	--dp-background-color: rgba(var(--colors-gray-900));
+	--dp-primary-color: rgba(var(--colors-primary-500));
+	--dp-primary-text-color: rgba(var(--colors-white));
+	--dp-secondary-color: rgba(var(--colors-gray-500));
+	--dp-border-color: rgba(var(--colors-gray-700));
+	--dp-border-color-hover: rgba(var(--colors-gray-600));
+	--dp-border-color-focus: rgba(var(--colors-primary-500));
+	--dp-menu-border-color: rgba(var(--colors-gray-700));
+	--dp-hover-color: rgba(var(--colors-gray-700));
+	--dp-hover-text-color: rgba(var(--colors-gray-300));
+	--dp-icon-color: rgba(var(--colors-gray-500));
+	--dp-tooltip-color: rgba(var(--colors-gray-800));
+	--dp-disabled-color: rgba(var(--colors-gray-900));
+	--dp-disabled-color-text: rgba(var(--colors-gray-600));
+	--dp-highlight-color: rgba(var(--colors-primary-500), 0.2);
+	--dp-range-between-dates-background-color: rgba(var(--colors-gray-700));
+	--dp-range-between-dates-text-color: rgba(var(--colors-gray-200));
+	--dp-range-between-border-color: rgba(var(--colors-gray-600));
+}
+
+.nova-datepicker-field .dp__input_wrap {
+	box-sizing: border-box;
+}
+
+.nova-datepicker-field .dp__input {
+	height: 36px;
+	font-family: var(--dp-font-family, ui-sans-serif, system-ui, sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji');
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 20px;
+	color: rgba(var(--colors-gray-600));
+	border: 0 solid rgba(var(--colors-gray-200));
+	box-shadow: rgba(var(--colors-white)) 0 0 0 0,
+		rgba(var(--colors-gray-950), 0.1) 0 0 0 1px,
+		rgba(var(--colors-black), 0.1) 0 1px 3px 0,
+		rgba(var(--colors-black), 0.1) 0 1px 2px -1px;
+}
+
+.dark .nova-datepicker-field .dp__input {
+	color: rgba(var(--colors-gray-400));
+	border: 0 solid rgba(var(--colors-gray-700));
+	box-shadow: rgba(var(--colors-white)) 0 0 0 0,
+		rgba(var(--colors-gray-100), 0.1) 0 0 0 1px,
+		rgba(var(--colors-black), 0.1) 0 1px 3px 0,
+		rgba(var(--colors-black), 0.1) 0 1px 2px -1px;
+}
+
+.nova-datepicker-field .dp__input:hover:not(.dp__input_focus) {
+	border-color: rgba(var(--colors-gray-300));
+}
+
+.dark .nova-datepicker-field .dp__input:hover:not(.dp__input_focus) {
+	border-color: rgba(var(--colors-gray-600));
+}
+
+.nova-datepicker-field .dp__input:focus,
+.nova-datepicker-field .dp__input_focus {
+	border-color: rgba(var(--colors-gray-200));
+	box-shadow: rgba(var(--colors-white)) 0 0 0 0,
+		rgba(var(--colors-primary-500)) 0 0 0 2px,
+		rgba(var(--colors-black), 0.1) 0 1px 3px 0,
+		rgba(var(--colors-black), 0.1) 0 1px 2px -1px;
+}
+
+.dark .nova-datepicker-field .dp__input:focus,
+.dark .nova-datepicker-field .dp__input_focus {
+	border-color: rgba(var(--colors-gray-700));
+	box-shadow: rgba(var(--colors-white)) 0 0 0 0,
+		rgba(var(--colors-primary-500)) 0 0 0 2px,
+		rgba(var(--colors-black), 0.1) 0 1px 3px 0,
+		rgba(var(--colors-black), 0.1) 0 1px 2px -1px;
+}
+
+.nova-datepicker-field .dp__input::placeholder {
+	color: rgba(var(--colors-gray-500));
+	opacity: 1;
+}
+
+.dark .nova-datepicker-field .dp__input::placeholder {
+	color: rgba(var(--colors-gray-500));
+}
