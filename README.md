@@ -17,15 +17,95 @@ composer require adtention/nova-datepicker-filter
 
 ## Usage
 
-Use `Datepicker` like any other Nova filter in your resource:
+Create a filter class that extends `Adtention\DatepickerFilter\DatepickerFilter`, then register it in your Nova resource.
 
 ```php
-TODO
+<?php
+
+namespace App\Nova\Filters;
+
+use Adtention\DatepickerFilter\DatepickerFilter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Laravel\Nova\Http\Requests\NovaRequest;
+
+class CreatedAt extends DatepickerFilter
+{
+    public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
+    {
+        if (empty($value)) {
+            return $query;
+        }
+
+        return $query->whereDate('created_at', $value);
+    }
+}
 ```
 
-### More examples
+Register the filter in your resource:
 
-TODO
+```php
+<?php
+
+use App\Nova\Filters\CreatedAt;
+
+public function filters(NovaRequest $request): array
+{
+    return [
+        CreatedAt::make()
+            ->single()
+            ->placeholder('Created on')
+            ->locale('en'),
+    ];
+}
+```
+
+### Range filter (`[start, end]`)
+
+In range mode, the filter value passed to `apply()` is an array with two values:
+
+- `$value[0]` = start date (`YYYY-MM-DD` or `null`)
+- `$value[1]` = end date (`YYYY-MM-DD` or `null`)
+
+```php
+<?php
+
+namespace App\Nova\Filters;
+
+use Adtention\DatepickerFilter\DatepickerFilter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Laravel\Nova\Http\Requests\NovaRequest;
+
+class CreatedBetween extends DatepickerFilter
+{
+    public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
+    {
+        [$from, $to] = is_array($value) ? $value : [null, null];
+
+        return $query
+            ->when($from, fn (Builder $query) => $query->whereDate('created_at', '>=', $from))
+            ->when($to, fn (Builder $query) => $query->whereDate('created_at', '<=', $to));
+    }
+}
+```
+
+Usage in resource:
+
+```php
+CreatedBetween::make()
+    ->range()
+    ->rangePlaceholders('From date', 'To date')
+    ->locale('de');
+```
+
+### Available fluent methods
+
+- `single()` → single date mode (default)
+- `range()` → range mode
+- `mode(DatepickerFilter::MODE_SINGLE | DatepickerFilter::MODE_RANGE)`
+- `locale('da')`
+- `placeholder('Choose date')` (single mode)
+- `startPlaceholder('Start')` / `endPlaceholder('End')`
+- `rangePlaceholders('Start', 'End')`
 
 ### Supported scope
 
