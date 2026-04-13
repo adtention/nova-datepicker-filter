@@ -1,5 +1,5 @@
 {
-    "name": "adtention/datepicker-filter",
+    "name": "adtention/nova-datepicker-filter",
     "description": "A Laravel Nova date field built as a thin wrapper around vuepic/vue-datepicker.",
     "keywords": [
         "laravel",
