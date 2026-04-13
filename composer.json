@@ -3,10 +3,9 @@
     "description": "A Laravel Nova date field built as a thin wrapper around vuepic/vue-datepicker.",
     "keywords": [
         "laravel",
-        "nova",
-        "filter",
-        "datepicker",
-        "vue"
+        "laravel-nova",
+        "laravel-nova-filter",
+        "datepicker"
     ],
     "license": "MIT",
     "require": {
