@@ -65,7 +65,12 @@
 import debounce from 'lodash/debounce'
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import { resolveDateFnsLocale } from '../dateFnsLocale'
-import { normalizeDateFilterValue, parseIsoDate } from '../dateParsing'
+import {
+  normalizeDateFilterValue,
+  parseFlexibleDateInput,
+  parseIsoDate,
+  resolveLocale,
+} from '../dateParsing'
 
 export default {
   components: {
@@ -96,14 +101,6 @@ export default {
     debouncedEventEmitter: null,
     timeConfiguration: {
       enableTimePicker: false,
-    },
-    textInputConfiguration: {
-      enterSubmit: true,
-      tabSubmit: true,
-      openMenu: 'open',
-      format: 'yyyy-MM-dd',
-      selectOnFocus: true,
-      applyOnBlur: true,
     },
     formats: {
       input: 'yyyy-MM-dd',
@@ -221,7 +218,18 @@ export default {
     },
 
     dateFnsLocale() {
-      return resolveDateFnsLocale(this.filter.locale)
+      return resolveDateFnsLocale(resolveLocale(this.filter))
+    },
+
+    textInputConfiguration() {
+      return {
+        enterSubmit: true,
+        tabSubmit: true,
+        openMenu: 'open',
+        format: value => parseFlexibleDateInput(value, resolveLocale(this.filter)),
+        selectOnFocus: true,
+        applyOnBlur: true,
+      }
     },
 
     singlePlaceholder() {
