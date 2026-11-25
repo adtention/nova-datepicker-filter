@@ -7,7 +7,12 @@
         <VueDatePicker
           v-model="singleValue"
           class="w-full nova-datepicker-field"
+          ref="singlePicker"
           :teleport="true"
+          :floating="menuPositions.single.floating"
+          :ui="{ menu: menuPositions.single.menuClass }"
+          @open="lockMenuSide('single')"
+          @closed="releaseMenuSide('single')"
           :locale="dateFnsLocale"
           :time-config="timeConfiguration"
           :auto-apply="true"
@@ -27,7 +32,12 @@
           <VueDatePicker
             v-model="startValue"
             class="w-full mt-1 nova-datepicker-field"
+            ref="startPicker"
             :teleport="true"
+            :floating="menuPositions.start.floating"
+            :ui="{ menu: menuPositions.start.menuClass }"
+            @open="lockMenuSide('start')"
+            @closed="releaseMenuSide('start')"
             :locale="dateFnsLocale"
             :time-config="timeConfiguration"
             :auto-apply="true"
@@ -46,7 +56,12 @@
           <VueDatePicker
             v-model="endValue"
             class="w-full mt-1 nova-datepicker-field"
+            ref="endPicker"
             :teleport="true"
+            :floating="menuPositions.end.floating"
+            :ui="{ menu: menuPositions.end.menuClass }"
+            @open="lockMenuSide('end')"
+            @closed="releaseMenuSide('end')"
             :locale="dateFnsLocale"
             :time-config="timeConfiguration"
             :auto-apply="true"
@@ -71,6 +86,30 @@ import {
   parseIsoDate,
   resolveLocale,
 } from '../dateParsing'
+import { markRaw } from 'vue'
+import {
+  createFlipOptions,
+  lockMenuToSide,
+  sideOfOpenMenu,
+  unlockMenuSide,
+  waitForMenuPosition,
+} from '../menuSide'
+
+/** Gives each picker's teleported menu its own class, so lockMenuSide can find it in <body>. */
+let menuCount = 0
+
+/**
+ * vue-datepicker reads `floating` once and floating-ui keeps the flip object by reference;
+ * lockMenuSide changes it in place (see menuSide.js). markRaw keeps Vue out of it.
+ *
+ * @returns {{ menuClass: string, floating: { flip: object } }}
+ */
+function createMenuPosition() {
+  return markRaw({
+    menuClass: `nova-datepicker-menu-${++menuCount}`,
+    floating: { flip: createFlipOptions() },
+  })
+}
 
 export default {
   components: {
@@ -95,6 +134,11 @@ export default {
   },
 
   data: () => ({
+    menuPositions: {
+      single: createMenuPosition(),
+      start: createMenuPosition(),
+      end: createMenuPosition(),
+    },
     singleValue: null,
     startValue: null,
     endValue: null,
@@ -147,6 +191,31 @@ export default {
   },
 
   methods: {
+    /**
+     * @param {'single'|'start'|'end'} pickerKey
+     */
+    async lockMenuSide(pickerKey) {
+      await waitForMenuPosition()
+
+      const menuPosition = this.menuPositions[pickerKey]
+      const menuElement = document.querySelector(`.${menuPosition.menuClass}`)
+      const side = sideOfOpenMenu(menuElement, this.$refs[`${pickerKey}Picker`]?.$el)
+
+      // The menu may have closed while we waited.
+      if (side === null) {
+        return
+      }
+
+      lockMenuToSide(menuPosition.floating.flip, side)
+    },
+
+    /**
+     * @param {'single'|'start'|'end'} pickerKey
+     */
+    releaseMenuSide(pickerKey) {
+      unlockMenuSide(this.menuPositions[pickerKey].floating.flip)
+    },
+
     setCurrentFilterValue() {
       const currentValue = this.filter.currentValue
 
