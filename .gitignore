@@ -8,3 +8,6 @@ phpunit.xml
 .phpunit.result.cache
 .DS_Store
 Thumbs.db
+/tests/Browser/harness/build
+/test-results
+/playwright-report
