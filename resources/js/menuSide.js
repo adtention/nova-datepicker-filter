@@ -1,3 +1,5 @@
+import { markRaw } from 'vue'
+
 /**
  * Rule: the date menu chooses once, when it opens, whether it sits above or below
  * the input, and stays on that side until it closes.
@@ -11,13 +13,18 @@
  * How: vue-datepicker 12 reads the `floating` prop once, when the picker is set up,
  * so a new placement passed later is ignored. It does pass our `flip` options object
  * to floating-ui by reference, and floating-ui reads that object again on every
- * update. So each picker gets its own options object, created once:
+ * update. So each picker gets one menu side object (createMenuSide), kept for the
+ * picker's lifetime, and we change its flip options in place:
  *
- * 1. The menu opens with normal flip behavior, so floating-ui picks the side with room.
+ * 1. On `open` the padding is reset at once. vue-datepicker emits `open` before it
+ *    renders the menu, so floating-ui places the new menu with normal flip behavior
+ *    and picks the side with room, whatever happened at an earlier opening.
  * 2. Once it is positioned, we read which side it landed on and give the other side
  *    a padding no screen can fit. Flip then always prefers the chosen side, and when
  *    neither side fits, its "best fit" fallback also picks the chosen side.
- * 3. When the menu closes, the padding is removed for the next opening.
+ * 3. If the menu closed or reopened while we waited, that lock is skipped; the
+ *    closing menu is still in the DOM during its leave animation and would give a
+ *    side for a menu that is gone.
  *
  * `shift` is left alone, so the menu still moves sideways to stay inside narrow screens.
  *
@@ -27,36 +34,84 @@
 /** Padding in pixels that makes floating-ui treat a side as having no room. */
 const NO_ROOM = 1000000
 
+/** Numbers each menu, so lockSideAfterOpening can find its teleported menu in <body>. */
+let menuCount = 0
+
 /**
- * Creates the flip options object for one picker. Pass it as `floating.flip` and keep
- * the same object for the picker's lifetime; lockMenuToSide and unlockMenuSide change it
- * in place.
- *
- * @returns {{ padding: number|{ top?: number, bottom?: number } }}
+ * @typedef {object} MenuSide
+ * @property {string} menuClass Class on the teleported menu element.
+ * @property {{ menu: string }} ui Pass as the picker's `ui` prop.
+ * @property {{ flip: { padding: number|{ top?: number, bottom?: number } } }} floating
+ *   Pass as the picker's `floating` prop.
+ * @property {boolean} isOpen
+ * @property {number} openings Counts openings, so a lock from an earlier opening is skipped.
  */
-export function createFlipOptions() {
-  return { padding: 0 }
+
+/**
+ * Creates the menu side object for one picker. markRaw keeps Vue from proxying it:
+ * floating-ui must keep reading the same flip object we change.
+ *
+ * @param {string} classPrefix Unique per package, so menus of different packages on
+ *   one page never share a class.
+ * @returns {MenuSide}
+ */
+export function createMenuSide(classPrefix) {
+  const menuClass = `${classPrefix}-${++menuCount}`
+
+  return markRaw({
+    menuClass,
+    ui: { menu: menuClass },
+    floating: { flip: { padding: 0 } },
+    isOpen: false,
+    openings: 0,
+  })
 }
 
 /**
- * @param {{ padding: number|object }} flipOptions The object from createFlipOptions.
- * @param {'top'|'bottom'} side
+ * Call from the picker's `open` event.
+ *
+ * @param {MenuSide} menuSide
+ * @param {() => Element|null|undefined} findInputElement Returns the picker's root element.
+ * @returns {Promise<void>}
  */
-export function lockMenuToSide(flipOptions, side) {
+export async function lockSideAfterOpening(menuSide, findInputElement) {
+  menuSide.floating.flip.padding = 0
+  menuSide.isOpen = true
+
+  const opening = ++menuSide.openings
+
+  await waitForMenuPosition()
+
+  if (!menuSide.isOpen) {
+    return
+  }
+
+  if (opening !== menuSide.openings) {
+    return
+  }
+
+  const side = sideOfOpenMenu(document.querySelector(`.${menuSide.menuClass}`), findInputElement())
+
+  if (side === null) {
+    return
+  }
+
   if (side === 'top') {
-    flipOptions.padding = { bottom: NO_ROOM }
+    menuSide.floating.flip.padding = { bottom: NO_ROOM }
 
     return
   }
 
-  flipOptions.padding = { top: NO_ROOM }
+  menuSide.floating.flip.padding = { top: NO_ROOM }
 }
 
 /**
- * @param {{ padding: number|object }} flipOptions The object from createFlipOptions.
+ * Call from the picker's `closed` event.
+ *
+ * @param {MenuSide} menuSide
  */
-export function unlockMenuSide(flipOptions) {
-  flipOptions.padding = 0
+export function markMenuClosed(menuSide) {
+  menuSide.isOpen = false
 }
 
 /**
@@ -64,11 +119,15 @@ export function unlockMenuSide(flipOptions) {
  * centers, because the menu's opening animation moves it a few pixels at first.
  *
  * @param {Element|null} menuElement
- * @param {Element|null} inputElement
+ * @param {Element|null|undefined} inputElement
  * @returns {'top'|'bottom'|null} null when either element is missing.
  */
-export function sideOfOpenMenu(menuElement, inputElement) {
-  if (!menuElement || !inputElement) {
+function sideOfOpenMenu(menuElement, inputElement) {
+  if (!menuElement) {
+    return null
+  }
+
+  if (!inputElement) {
     return null
   }
 
@@ -91,7 +150,7 @@ export function sideOfOpenMenu(menuElement, inputElement) {
  *
  * @returns {Promise<void>}
  */
-export function waitForMenuPosition() {
+function waitForMenuPosition() {
   return new Promise(resolve => {
     requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
   })
