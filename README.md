@@ -147,6 +147,14 @@ Run a specific test:
 php vendor/bin/phpunit --filter=it_defaults_locale_meta_to_the_application_locale
 ```
 
+Run the browser tests (Playwright, using the Google Chrome installed on your machine):
+
+```bash
+npm run test:browser
+```
+
+They build a small page in `tests/Browser/harness` that mounts the filter component without Nova, then check the date menu's side, typed dates and clicked days in a real browser. They run locally only.
+
 ## License
 
 MIT

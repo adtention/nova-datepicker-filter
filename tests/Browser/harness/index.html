@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Datepicker filter test page</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+      }
+
+      #emitted-bar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 4px 8px;
+        background: #eee;
+        font-family: monospace;
+      }
+
+      #filter {
+        width: 260px;
+        margin-left: 16px;
+      }
+
+      .block {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="emitted-bar">Emitted: <span id="emitted"></span></div>
+    <div id="space-above"></div>
+    <div id="filter"></div>
+    <div id="space-below"></div>
+    <script src="./build/js/main.js"></script>
+  </body>
+</html>

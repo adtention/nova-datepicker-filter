@@ -6,9 +6,11 @@
     "watch": "mix watch",
     "watch-poll": "mix watch -- --watch-options-poll=1000",
     "prod": "npm run production",
-    "production": "mix --production"
+    "production": "mix --production",
+    "test:browser": "mix --mix-config=tests/Browser/webpack.mix.js --no-progress && playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "laravel-nova-devtool": "file:vendor/laravel/nova-devtool"
   },
   "dependencies": {
