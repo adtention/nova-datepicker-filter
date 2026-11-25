@@ -264,7 +264,10 @@ export default {
         openMenu: 'open',
         format: value => parseFlexibleDateInput(value, resolveLocale(this.filter)),
         selectOnFocus: true,
-        applyOnBlur: true,
+        // Off on purpose: clicking a day in the calendar blurs the input first, and
+        // applying on blur then closed the menu with the old date, so the click was
+        // lost. A typed date is still applied on Enter, Tab and a click outside.
+        applyOnBlur: false,
       }
     },
 
