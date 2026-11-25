@@ -7,7 +7,10 @@
         <VueDatePicker
           v-model="singleValue"
           class="w-full nova-datepicker-field"
+          ref="singlePicker"
           :teleport="true"
+          :floating="menuSides.single.floating"
+          :ui="menuSides.single.ui"
           :locale="dateFnsLocale"
           :time-config="timeConfiguration"
           :auto-apply="true"
@@ -15,6 +18,8 @@
           :formats="formats"
           :placeholder="singlePlaceholder"
           :input-attrs="{ dusk: `${filter.uniqueKey}-single` }"
+          @open="lockMenuSide('single')"
+          @closed="noteMenuClosed('single')"
         />
       </label>
 
@@ -27,7 +32,10 @@
           <VueDatePicker
             v-model="startValue"
             class="w-full mt-1 nova-datepicker-field"
+            ref="startPicker"
             :teleport="true"
+            :floating="menuSides.start.floating"
+            :ui="menuSides.start.ui"
             :locale="dateFnsLocale"
             :time-config="timeConfiguration"
             :auto-apply="true"
@@ -35,6 +43,8 @@
             :formats="formats"
             :placeholder="startPlaceholder"
             :input-attrs="{ dusk: `${filter.uniqueKey}-range-start` }"
+            @open="lockMenuSide('start')"
+            @closed="noteMenuClosed('start')"
           />
         </label>
 
@@ -46,7 +56,10 @@
           <VueDatePicker
             v-model="endValue"
             class="w-full mt-1 nova-datepicker-field"
+            ref="endPicker"
             :teleport="true"
+            :floating="menuSides.end.floating"
+            :ui="menuSides.end.ui"
             :locale="dateFnsLocale"
             :time-config="timeConfiguration"
             :auto-apply="true"
@@ -54,6 +67,8 @@
             :formats="formats"
             :placeholder="endPlaceholder"
             :input-attrs="{ dusk: `${filter.uniqueKey}-range-end` }"
+            @open="lockMenuSide('end')"
+            @closed="noteMenuClosed('end')"
           />
         </label>
       </template>
@@ -71,6 +86,7 @@ import {
   parseIsoDate,
   resolveLocale,
 } from '../dateParsing'
+import { createMenuSide, lockSideAfterOpening, markMenuClosed } from '../menuSide'
 
 export default {
   components: {
@@ -95,6 +111,12 @@ export default {
   },
 
   data: () => ({
+    // Keep each open menu on one side of its input; see menuSide.js.
+    menuSides: {
+      single: createMenuSide('nova-datepicker-filter-menu'),
+      start: createMenuSide('nova-datepicker-filter-menu'),
+      end: createMenuSide('nova-datepicker-filter-menu'),
+    },
     singleValue: null,
     startValue: null,
     endValue: null,
@@ -147,6 +169,20 @@ export default {
   },
 
   methods: {
+    /**
+     * @param {'single'|'start'|'end'} pickerKey
+     */
+    lockMenuSide(pickerKey) {
+      return lockSideAfterOpening(this.menuSides[pickerKey], () => this.$refs[`${pickerKey}Picker`]?.$el)
+    },
+
+    /**
+     * @param {'single'|'start'|'end'} pickerKey
+     */
+    noteMenuClosed(pickerKey) {
+      markMenuClosed(this.menuSides[pickerKey])
+    },
+
     setCurrentFilterValue() {
       const currentValue = this.filter.currentValue
 
